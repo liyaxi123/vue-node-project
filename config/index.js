@@ -12,6 +12,9 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {  //跨域设置
       '/goods':{
+        target:'http://localhost:3000'  //=>这样设置就相当于访问localhost:3000/goods
+      },
+      '/users/*':{
         target:'http://localhost:3000'
       }
     },

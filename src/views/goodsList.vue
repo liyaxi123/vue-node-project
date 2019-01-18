@@ -161,13 +161,13 @@ components: {
 .rows{
   display:inline-block;
   padding-left: 5px;
-
+transition: all 0.3s ease-in-out
 }
 .inrows{
   display: inline-block;
   padding-left: 5px; 
    transform: rotateX(180deg); 
-    transition: all .5s ease-in;
+    transition: all .5s ease-out;
 }
 .loading {
  position: absolute;

@@ -15,9 +15,9 @@
           <div class="navbar-right-container" style="display: flex;">
             <div class="navbar-menu-container">
               <!--<a href="/" class="navbar-link">我的账户</a>-->
-              <span class="navbar-link"></span>
-              <a href="javascript:void(0)" class="navbar-link" v-show="login_flag" @click="login_in()">Login</a>
-              <a href="javascript:void(0)" class="navbar-link" v-show="!login_flag">Logout</a>
+              <span class="navbar-link" v-text="username" v-show='!loginflag'></span>
+              <a href="javascript:void(0)" class="navbar-link" v-show="loginflag" @click="login_in()">Login</a>
+              <a href="javascript:void(0)" class="navbar-link" v-show="!loginflag" @click="login_out()">Logout</a>
               <div class="navbar-cart-container">
                 <span class="navbar-cart-count"></span>
                 <a class="navbar-link navbar-cart-link" href="/#/cart">
@@ -34,11 +34,13 @@
 </template>
 <script>
 import vModel from '@/components/vModel.vue';
+import axios from 'axios';
 export default {
 data(){
   return {
-    login_flag: true, //登录登出按钮的控制
-    model_show_flag: false
+    loginflag: true, //登录登出按钮的控制
+    modelshowflag: false,
+    username:''
    }
  },
  components:{
@@ -46,8 +48,25 @@ data(){
  },
   methods:{
    login_in:function(){
-     this.$refs.model.model_show_flag=true;
+     this.$refs.model.modelshowflag=true;
+   },
+   login_out: function(){
+     //login_out要做的事情  后端把cookie删除，前端切换登录登出按钮
+     axios.post('/users/login_out') //分别对应一级路由和二级路由
+     .then((res)=>{    //兄弟请使用es箭头函数
+       if(res.data.status==='0'){
+         this.loginflag=true;
+       }
+     })
    }
+},
+mounted(){
+  axios.get('/users/checkout').then((res)=>{
+    if(res.data.status==='0'){
+      this.loginflag=true,
+      this.username=res.data.result  //通过v-text来给元素内容添加值
+    }
+  })
 }
 }
 </script>

@@ -24,7 +24,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/goods',goods);
-
+//登录拦截功能在这里处理
+app.use(function(req,res,next){
+  //req.originalUrl  返回的是完整请求地址包括参数，req.path返回的是不包括参数的请求地址
+  if(req.originalUrl=='/users/login_in'||req.originalUrl=='/users/login_out'||req.path=='/goods/'){
+    res.next()
+  }else{
+    if(req.cookies.userId){
+      res.next();
+    }else{
+      res.json({
+        status:'1',
+        msg:'sorry，你还未登录!',
+      })
+    }
+  }
+});
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
