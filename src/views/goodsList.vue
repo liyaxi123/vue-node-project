@@ -1,7 +1,7 @@
 <template>
 <div>
     <v-header></v-header>
-    <v-bread></v-bread>
+    <v-bread><span>商品</span></v-bread>
       <div class="accessory-result-page accessory-page">
         <div class="container">
           <div class="filter-nav">
@@ -55,6 +55,24 @@
           </div>
         </div>
       </div>
+      <v-model v-show="goshopModel" @close="childclose" ref="goshop">
+        <p slot="description" class="description">您还未登录，请先登录！</P>
+         <template slot="contentModel">
+           <p class="shopfail">商品添加失败</p>
+         </template>
+         <template slot="buttonModel">
+           <button class="modelButton" @click="closess">关闭</button>
+         </template>
+      </v-model>
+       <v-model v-show="goshopsucceful" @close="childclose">
+         <template slot="contentModel">
+           <p class="shopfail succeful_shop_title">商品添加成功</p>
+         </template>
+         <template slot="buttonModel">
+           <button class="modelButton  btn_shop_succeful" @click="goshopsucceful=false">继续购物</button>
+           <router-link to="/goodsList"><button class="modelButton  btn_shop_succeful" @click="goshopsucceful=false">查看购物车</button></router-link>
+         </template>
+      </v-model>
       <v-footer></v-footer>
 </div>
 </template>
@@ -66,6 +84,7 @@ import vHeader  from '@/components/vHeader.vue';
 import vFooter from '@/components/vFooter.vue';
 import vBread from '@/components/vBread.vue';
 import axios from "axios";
+import vModel from '@/components/vModel.vue';
 export default {
     data(){
         return {
@@ -77,12 +96,15 @@ export default {
             priceLevel: 'all',
             loading: false,
             checked:true,
+            goshopModel:false,  //购物失败提醒框控制
+            goshopsucceful: false  //购物成功提示框
         }
     },
 components: {
     vHeader,
     vFooter,
     vBread,
+    vModel
  },
  methods:{
      //这里进行ajax请求
@@ -131,12 +153,14 @@ components: {
      addCart:function(msf){
        axios.post('/goods/addCart',{
          productId:msf
-       }).then(function(res){ //这里一定要注意是res.data才代表数据
+       }).then((res)=>{ //这里一定要注意是res.data才代表数据
          console.log(res.data.status)
          if(res.data.status=="0"){
-           alert('添加成功')
+           this.goshopsucceful =true;
          }else{
-           alert('添加失败')
+          if(res.data.status==='2'){
+            this.goshopModel=true;
+          }  //2 为未登录状态
          }
        })
      },
@@ -150,6 +174,13 @@ components: {
       this.priceLevel = index;
       this.page = 1;
       this.getData(false);
+    },
+    childclose(){
+      this.goshopModel=false;
+      this.goshopsucceful =false;
+    },
+    closess(){
+      this.goshopModel=false;
     }
  },
  mounted(){
@@ -158,19 +189,12 @@ components: {
 }
 </script>
 <style scoped>
-.rows{
-  display:inline-block;
-  padding-left: 5px;
-transition: all 0.3s ease-in-out
-}
-.inrows{
-  display: inline-block;
-  padding-left: 5px; 
-   transform: rotateX(180deg); 
-    transition: all .5s ease-out;
-}
-.loading {
- position: absolute;
-  top:50%; left: 50%
-}
+.rows{ display:inline-block;margin-left: 10px; transition: all 0.3s ease-in-out}
+.inrows{ display: inline-block; margin-left: 10px;  transform: rotate(180deg);  transition: all .5s ease-out;}
+.loading {position: absolute;top:50%; left: 50%}
+.description{ color:indianred; font-size: 20px; margin:50px auto ;}
+.shopfail { margin-top: 30px; font-size:17px; color:indianred;}
+.modelButton { margin-top: 50px; padding:10px 30px; background:red; color: white;}
+.btn_shop_succeful {margin-top: 100px;margin-left: 10px;}
+.succeful_shop_title { margin-top: 70px; font-size: 20px;}
 </style>

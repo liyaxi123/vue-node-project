@@ -2,8 +2,8 @@
 <div class="nav-breadcrumb-wrap">
         <div class="container">
           <nav class="nav-breadcrumb">
-            <a href="/">Home</a>
-            <span>Goods</span>
+            <a href="/">首页</a>
+            <slot></slot>
           </nav>
         </div>
       </div>

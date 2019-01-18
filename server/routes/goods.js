@@ -5,7 +5,7 @@ var Goods = require('../models/goods');
 var User = require("../models/user");
 
 //连接Mongodb数据库
-mongoose.connect('mongodb://admin:admin@192.168.252.128:27017/demoone')
+mongoose.connect('mongodb://admin:123456@192.168.6.128:27017/demoone')
 
 mongoose.connection.on('connected',function(){
     console.log('已经成功连接！')
@@ -58,74 +58,104 @@ router.get('/',function(req,res,next){
 })
 //购物车添加功能
 router.post('/addCart',function(req,res,next){
-    var userId=10001,productId=req.body.productId;
-    User.findOne({userId:userId},function(err,userdoc){
-        if(err){
-            res.json({
-                status: '1',
-                msg: err.message
-            })
-        }else{
-            if(userdoc){
-                var goodsItem='';
-                userdoc.cartList.forEach(function(item,i){
-                    if(item.productId===productId){
-                        goodsItem=item;
-                        item.productNum++
-                    }
+  
+    if(!req.cookies.userId){
+        res.json({
+            msg:'你还未登录！',
+            status:'2',
+        })
+    }else{
+        var productId=req.body.productId,userId=req.cookies.userId;
+        User.findOne({userId:userId},function(err,userdoc){
+            if(err){
+                res.json({
+                    status: '1',
+                    msg: err.message
                 })
-                if(goodsItem){    //购物车中已存在该类商品
-                    userdoc.save(function(err,doc){
-                        if(err){
-                            console.log('这里')
-                            res.json({
-                                status:'1',
-                                msg:err.message
-                            })
-                        }else{
-                            res.json({
-                                status: '0',
-                                msg:'you are successsful',
-                            })
+            }else{
+                if(userdoc){
+                    var goodsItem='';
+                    userdoc.cartList.forEach(function(item,i){
+                        if(item.productId===productId){
+                            goodsItem=item;
+                            item.productNum++
                         }
                     })
-                }else{  //购物车中不存在该商品
-                    Goods.findOne({productId:productId},function(err,doc2){
-                        if(err){
-                            console.log(12233)
-                            res.json({
-                                status:'1',
-                                msg:err.message,
-                            })
-                        }else{
-                            if(doc2){
-                                //对比goods字段与user字段，进行字段的添加
-                                doc2.productNum =1;
-                                doc2.checked = 1;
-                                console.log(doc2+"nihaoa")
-                                userdoc.cartList.push(doc2);
-                           
-                                userdoc.save(function(err,doc){
-                                    if(err){
-                                        res.json({
-                                            status:'1',
-                                            msg:err.message
-                                        })
-                                    }else{
-                                        res.json({
-                                            status:'0',
-                                            msg: 'you are successful!'
-                                        })
-                                    }
+                    if(goodsItem){    //购物车中已存在该类商品
+                        userdoc.save(function(err,doc){
+                            if(err){
+                                console.log('这里')
+                                res.json({
+                                    status:'1',
+                                    msg:err.message
+                                })
+                            }else{
+                                res.json({
+                                    status: '0',
+                                    msg:'you are successsful',
                                 })
                             }
-                        }
-                    })
+                        })
+                    }else{  //购物车中不存在该商品
+                        Goods.findOne({productId:productId},function(err,doc2){
+                            if(err){
+                                console.log(12233)
+                                res.json({
+                                    status:'1',
+                                    msg:err.message,
+                                })
+                            }else{
+                                if(doc2){
+                                    //对比goods字段与user字段，进行字段的添加
+                                    doc2.productNum =1;
+                                    doc2.checked = 1;
+                                    console.log(doc2+"nihaoa")
+                                    userdoc.cartList.push(doc2);
+                               
+                                    userdoc.save(function(err,doc){
+                                        if(err){
+                                            res.json({
+                                                status:'1',
+                                                msg:err.message
+                                            })
+                                        }else{
+                                            res.json({
+                                                status:'0',
+                                                msg: 'you are successful!'
+                                            })
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                    }
+                   
                 }
-               
+            }
+        })
+    }
+   
+
+})
+//获取用户购物车列表
+router.get('/List',function(req,res,next){
+    var userId = req.cookies.userId;
+    User.findOne({userId:userId},function(err,doc){
+        if(err){
+            res.json({
+                status:'1',
+                msg: err.message,
+                result:''
+            })
+        }else{
+            if(doc){
+                res.json({
+                    status: '0',
+                    msg: '获取购物车列表成功',
+                    result: doc.cartList
+                })
             }
         }
     })
-
 })
 module.exports=router;

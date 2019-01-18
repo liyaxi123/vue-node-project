@@ -29,7 +29,26 @@
             </div>
           </div>
         </div>
-         <v-model ref='model'></v-model>
+         <v-model ref='model' @close="childss">
+           <template slot="description">
+              <span class="back" @click="clickx">x</span>
+              <div class="title">登陆页</div>
+           </template>
+           <template slot="contentModel">
+              <div class="tips" v-show="tipsflag">你输入的账号或密码不正确</div>
+                <div class="common">
+                    <label for="username">用户名</label>
+                        <input type="text" id="username" v-model="username">
+                </div>
+                <div class="common">
+                    <label for="pwd">&nbsp;&nbsp;&nbsp;密码</label>
+                        <input type="password" id="pwd" v-model='password'>
+                </div>
+           </template>
+           <template slot="buttonModel">
+             <button class="btn_login" @click="go_login">登&nbsp;&nbsp;陆</button>
+           </template>
+         </v-model>
     </header>
 </template>
 <script>
@@ -39,8 +58,10 @@ export default {
 data(){
   return {
     loginflag: true, //登录登出按钮的控制
-    modelshowflag: false,
-    username:''
+    username:'',
+    tipsflag:false,
+     username:'',
+    password:'',
    }
  },
  components:{
@@ -58,15 +79,50 @@ data(){
          this.loginflag=true;
        }
      })
-   }
+   },
+   clickx(){
+     this.$refs.model.modelshowflag=false;
+   },
+    go_login(){
+            if(!this.username||!this.password){
+                   this.tipsflag=true;
+                return
+            }
+          axios.post('/users/login',{   //路径  /users对应一级路由（app.js），/login对应2级路由(user.js)
+               username: this.username,
+               password:this.password
+          }).then((res)=>{    //这里还要用es6的语法，不然this指向有问题
+                 var response = res.data;
+                 if(response.status==='0'){
+                   this.$refs.model.modelshowflag=false;
+                     this.tipsflag=false;  
+                     this.username=response.result.username;
+                     this.loginflag=false;
+                 }else{
+                     this.tipsflag=true;
+                 }
+          })
+        },
+        childss(){
+         this.$refs.model.modelshowflag=false;
+        }
 },
 mounted(){
   axios.get('/users/checkout').then((res)=>{
     if(res.data.status==='0'){
-      this.loginflag=true,
+      this.loginflag=false,
       this.username=res.data.result  //通过v-text来给元素内容添加值
     }
   })
 }
 }
 </script>
+<style scoped>
+.common{ margin: 20px 0 10px -50px}
+.common input { height:25px;width:200px;}
+.title { text-align: center; margin-top:20px; font-weight: 300; font-size:30px;}
+.btn_login { background: tomato;padding: 10px 20px;}
+.back{ position: absolute; right:5px;top:3px; cursor: pointer; font-size: 20px; display:block;width: 20px; height:20px;line-height:15px;}
+.back:hover{ border:1px solid goldenrod; border-radius: 50%; background: goldenrod}
+.tips{color:red}
+</style>

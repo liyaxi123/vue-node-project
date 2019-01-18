@@ -12,7 +12,9 @@ html {
   font-size: 100%;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  user-select: none;
 }
+
 
 body {
   margin: 0;

@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 //这里做的时候有个疑问，该文件不引入mogoose行不行,结果不引入也行
-// var moongose = require('mongoose');
+ var moongose = require('mongoose');
 var User = require('../models/user');
 router.post('/login', function(req, res, next) {
   var params={
@@ -40,7 +40,7 @@ router.post('/login', function(req, res, next) {
    })
 });
 router.post('/login_out',function(req,res,next){
-   //后盾需要删除cookie
+   //后端需要删除cookie
    res.cookie('userId','',{
      path:'/',
      maxAge: -1
@@ -53,6 +53,7 @@ router.post('/login_out',function(req,res,next){
 //登录状态检查
 router.get('/checkout',function(req,res,next){
   if(req.cookies.userId){
+     var userId = req.cookies.userId
     User.findOne({userId:userId},function(err,doc){
        res.json({
          status: '0',
