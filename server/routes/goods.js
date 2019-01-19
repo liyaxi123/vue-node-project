@@ -5,7 +5,7 @@ var Goods = require('../models/goods');
 var User = require("../models/user");
 
 //连接Mongodb数据库
-mongoose.connect('mongodb://admin:admin@192.168.252.128:27017/demoone')
+mongoose.connect('mongodb://admin:123456@192.168.6.128:27017/demoone')
 
 mongoose.connection.on('connected',function(){
     console.log('已经成功连接！')
@@ -109,9 +109,7 @@ router.post('/addCart',function(req,res,next){
                                     //对比goods字段与user字段，进行字段的添加
                                     doc2.productNum =1;
                                     doc2.checked = 1;
-                                    console.log(doc2+"nihaoa")
                                     userdoc.cartList.push(doc2);
-                               
                                     userdoc.save(function(err,doc){
                                         if(err){
                                             res.json({

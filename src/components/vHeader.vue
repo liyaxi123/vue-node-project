@@ -42,7 +42,7 @@
                 </div>
                 <div class="common">
                     <label for="pwd">&nbsp;&nbsp;&nbsp;密码</label>
-                        <input type="password" id="pwd" v-model='password'>
+                        <input type="password" id="pwd" v-model='password' @keydown.enter="go_login">
                 </div>
            </template>
            <template slot="buttonModel">

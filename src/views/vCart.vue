@@ -57,10 +57,10 @@
           </ul>
         </div>
         <ul class="cart-item-list">
-          <li v-if="flag[index]" v-for="(item,index) in items">
+          <li  v-for="(item,index) in items">
             <div class="cart-tab-1">
               <div class="cart-item-check">
-                <a href="javascipt:;" class="checkbox-btn item-check-btn" v-bind:class="{'check':checked}" @click="editCart('checked')">
+                <a href="javascipt:;" class="checkbox-btn item-check-btn" v-bind:class="{'check':item.checked==1?true:false}" @click="editor('select',item,item.checked)">
                   <svg class="icon icon-ok">
                     <use xlink:href="#icon-ok"></use>
                   </svg>
@@ -80,15 +80,15 @@
               <div class="item-quantity">
                 <div class="select-self select-self-open">
                   <div class="select-self-area">
-                    <a class="input-sub" @click="reduce(index)">-</a>
+                    <a class="input-sub" @click="editor('reduce',item)">-</a>
                     <span class="select-ipt" >{{item.productNum}}</span>
-                    <a class="input-add" @click="add(index)">+</a>
+                    <a class="input-add" @click="editor('add',item)">+</a>
                   </div>
                 </div>
               </div>
             </div>
             <div class="cart-tab-4">
-              <div class="item-price-total">{{item.itemTotal}}</div>
+              <div class="item-price-total">{{item.productNum*item.salePrice}}</div>
             </div>
             <div class="cart-tab-5">
               <div class="cart-item-opration">
@@ -107,8 +107,8 @@
       <div class="cart-foot-inner">
         <div class="cart-foot-l">
           <div class="item-all-check">
-            <a href="javascipt:;" v-bind:class="{'check':'checkall'}">
-                  <span class="checkbox-btn item-check-btn">
+            <a href="javascipt:;" @click='cartSeletAll()'>
+                  <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkall}">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
               <span>选择所有</span>
@@ -117,7 +117,7 @@
         </div>
         <div class="cart-foot-r">
           <div class="item-total">
-            总计 <span class="total-price" v-text="totalprice"></span>
+            总计 <span class="total-price"></span>
           </div>
           <div class="btn-wrap">
             <a class="btn btn--red">提交</a>
@@ -151,15 +151,60 @@ export default{
   data(){
     return{
       items:[],
-      checked: true,
-      flag:[],
-      totalprice:0,
-      checkall: true,
-      cartModelFlag: false,
+      cartModelFlag: false,  //控制模态框
       productId:0,
+      checkall:true
+    }
+  },
+  watch:{
+    items:function(){
+      console.log('检测到了吗？')
+        this.items.forEach((item)=>{
+          if(item.checked===0){
+            this.checkall=false
+          }
+        })
     }
   },
   methods:{
+    //全选
+    cartSeletAll(){
+      this.checkall=!this.checkall;
+      this.items.forEach((item)=>{
+        item.checked=this.checkall===true?1:0;
+      })
+      axios.post('/users/checkedall',{
+        checkedAll: this.checkall
+      }).then((res)=>{
+        if(res.data.status==='0'){
+          console.log('全选check已经更新')
+        }else{
+          console.log('出错了')
+        }
+      })
+    },
+    editor(ags,item,check){
+      if(ags==='reduce'){
+        if(item.productNum<=1){
+          return;
+        }
+        item.productNum-=1;  //item不存在于data数据中为什么还可以自动更新呢？!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         this.cartNum(item.productId,item.productNum);
+      }else if(ags ==='add'){
+        item.productNum+=1;
+        this.cartNum(item.productId,item.productNum);
+      }else if(ags==='select'){
+        //数据库中checked为0 是选中，为1是未选中,改变数据库中的状态
+          if(check===1){
+            item.checked =0;
+            this.cartNum(item.productId,item.productNum,item.checked);
+          }else{
+            item.checked =1;
+            this.cartNum(item.productId,item.productNum,item.checked);
+          }
+      }
+    },
+    //点击删除按钮后，模态框的删除按钮事件,需要后端配合删除数据
     delCart(){
         axios.post('/users/cartdel',{
        productId:this.productId
@@ -170,26 +215,28 @@ export default{
        }
      })
     },
+    //改变数量后触发的ajax,后端需要同步改变数量
+    cartNum(productId,productNum,checked){
+      axios.post('/users/carteditor',{
+        productId:productId,
+        productNum:productNum,
+        checked:checked
+      }).then((res)=>{
+        if(res.data.status==='0'){
+          console.log('后端数量已经更改')
+        }else{
+          console.log('错误！')
+        }
+      })
+    },
+    //模态框的取消事件
     closeDel(){
  this.cartModelFlag=false;
     },
     cartModel(){
       this.cartModelFlag=false;
     },
-    reduce(index){
-      if( this.items[index].productNum<=1){
-        return;
-      }else{
-        this.items[index].productNum--
-        this.items[index].itemTotal = this.items[index].itemTotal-this.items[index].salePrice;
-        this.totalprice-=this.items[index].salePrice;
-      }
-    },
-    add(index){
-    this.items[index].productNum++
-    this.items[index].itemTotal = this.items[index].itemTotal+this.items[index].salePrice;
-    this.totalprice+=this.items[index].salePrice;
-    },
+   
     del(index){
       //1：data中的数据才会自动更新，所以所有数据要和data产生关联。
       //2:下面是改变数组的正确方式
@@ -204,11 +251,6 @@ export default{
       let data = res.data;
       if(data.status==='0'){
         this.items = data.result;
-        this.items.forEach((item)=>{
-          item.itemTotal = item.productNum*item.salePrice;//分别计算每个物品的总价
-         this.flag.push(true)
-         this.totalprice+=item.itemTotal
-        })
       }else{
         alert(data.msg)
       }

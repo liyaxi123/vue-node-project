@@ -63,7 +63,7 @@ router.get('/checkout',function(req,res,next){
     })
   }else{
     res.json({
-      msg:'对不齐你好未登录！',
+      msg:'对不起您未登录！',
       status:'1',
     })
   }
@@ -85,5 +85,62 @@ router.post('/cartdel',function(req,res,next){   //为什么逻辑要写这里�
       })
     }
   }) 
+});
+//编辑购物车的数量
+router.post('/carteditor',function(req,res,next){
+ var userId= req.cookies.userId,productId = req.body.productId,productNum=req.body.productNum,checked=req.body.checked;
+ User.update({userId:userId,'cartList.productId':productId},{
+   'cartList.$.productNum':productNum,
+   'cartList.$.checked':checked
+ },function(err,doc){
+   if(err){
+     res.json({
+       status:'1',
+       msg:err.message,
+       result:''
+     })
+   }else{
+     res.json({
+       //数据先返回去
+       status:'0',
+       msg:'数量已经更新成功了',
+       result: doc
+     })
+   }
+ })
+});
+//全选select
+router.post('/checkedall',function(req,res,next){
+  var checkedAll = req.body.checkedAll===true?1:0,userId = req.cookies.userId;
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1',
+        msg:err.message,
+        result:''
+      })
+    }else{
+      if(doc){
+        doc.cartList.forEach(element => {
+          element.checked=checkedAll;
+        });
+        doc.save(function(err,doc){
+          if(err){
+            res.json({
+              status:'1',
+              msg:err.message,
+              result:''
+            })
+          }else{
+            res.json({
+              status:'0',
+              msg:'selectAll已经全部改好',
+              result:doc
+            })
+          }
+        })
+      }
+    }
+  })
 })
 module.exports = router;
