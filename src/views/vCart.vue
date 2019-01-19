@@ -92,7 +92,7 @@
             </div>
             <div class="cart-tab-5">
               <div class="cart-item-opration">
-                <a href="javascript:;" class="item-edit-btn" @click="del(index)">
+                <a href="javascript:;" class="item-edit-btn" @click="del(item.productId)">
                   <svg class="icon icon-del">
                     <use xlink:href="#icon-del"></use>
                   </svg>
@@ -127,6 +127,13 @@
     </div>
   </div>
 </div>
+<v-model @close="cartModel" v-show="cartModelFlag">
+  <p slot="contentModel" class="shopfail succeful_shop_title">你确定要删除该商品？</p>
+    <template slot="buttonModel">
+      <button class="modelButton  btn_shop_succeful" @click="delCart()">删除</button>
+      <button class="modelButton  btn_shop_succeful" @click="closeDel()">关闭</button>
+    </template>
+</v-model>
 <v-footer></v-footer>
 </div>
 </template>
@@ -134,6 +141,7 @@
 import vHeader from '../components/vHeader';
 import vBread from '../components/vBread';
 import vFooter from '../components/vFooter';
+import vModel from '../components/vModel'
 import '@/assets/css/base.css';
 import '@/assets/css/checkout.css';
 import '@/assets/css/login.css';
@@ -146,12 +154,30 @@ export default{
       checked: true,
       flag:[],
       totalprice:0,
-      checkall: true
+      checkall: true,
+      cartModelFlag: false,
+      productId:0,
     }
   },
   methods:{
+    delCart(){
+        axios.post('/users/cartdel',{
+       productId:this.productId
+     }).then((res)=>{
+       if(res.data.status==='0'){
+         this.cartModelFlag=false;
+         this.getCartList();
+       }
+     })
+    },
+    closeDel(){
+ this.cartModelFlag=false;
+    },
+    cartModel(){
+      this.cartModelFlag=false;
+    },
     reduce(index){
-      if( this.items[index].productNum<=0){
+      if( this.items[index].productNum<=1){
         return;
       }else{
         this.items[index].productNum--
@@ -167,12 +193,14 @@ export default{
     del(index){
       //1：data中的数据才会自动更新，所以所有数据要和data产生关联。
       //2:下面是改变数组的正确方式
-      this.flag.splice(index,1,false); 
-      this.totalprice-=this.items[index].itemTotal;
-    }
-  },
-  mounted(){
-    axios.get('/goods/List').then((res)=>{
+      // this.flag.splice(index,1,false); 
+      // this.totalprice-=this.items[index].itemTotal;
+      //删除功能需要后端配合前端传递商品id
+     this.productId=index;
+     this.cartModelFlag =true;
+    },
+    getCartList(){
+        axios.get('/goods/List').then((res)=>{
       let data = res.data;
       if(data.status==='0'){
         this.items = data.result;
@@ -185,11 +213,16 @@ export default{
         alert(data.msg)
       }
     })
+    },
+  },
+  mounted(){
+    this.getCartList();
   },
 components: {
     vHeader,
     vFooter,
     vBread,
+    vModel
  },
 }
 </script>
@@ -197,5 +230,8 @@ components: {
     .input-sub,.input-add{ min-width: 40px; height: 100%; border: 0; color: #605F5F;  text-align: center; font-size: 16px; overflow: hidden; display: inline-block; background: #f0f0f0;}
     .item-quantity .select-self-area{ background:none; border: 1px solid #f0f0f0;}
     .item-quantity .select-self-area .select-ipt{ display: inline-block; padding:0 3px; width: 30px; min-width: 30px; text-align: center; }
+    .btn_shop_succeful {margin-top: 100px;margin-left: 10px;}
+    .succeful_shop_title { margin-top: 70px; font-size: 20px;}
+    .modelButton { margin-top: 50px; padding:10px 30px; background:red; color: white;}
   </style>
 

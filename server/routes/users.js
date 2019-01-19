@@ -68,4 +68,22 @@ router.get('/checkout',function(req,res,next){
     })
   }
 })
+//删除购物车   根据前端传来的productID和缓存中的username   
+router.post('/cartdel',function(req,res,next){   //为什么逻辑要写这里，因为要操作user文档，你再建个usermodel写其他地方也OK
+  var userId = req.cookies.userId,productId=req.body.productId;
+  User.update({userId:userId},{'$pull':{cartList:{productId:productId}}},function(err,doc){
+    if(err){
+      res.json({
+        msg:err.message,
+        status:'1',
+      })
+    }else{
+      res.json({
+        msg:'数据删除成功',
+        status:'0',
+        result:''
+      })
+    }
+  }) 
+})
 module.exports = router;

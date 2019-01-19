@@ -6,6 +6,8 @@ var productSchema = new Schema({   //声明字段就是上述两个步骤   =》
     'productName':String,
     'productImage':String,
     'salePrice':Number,
+    'productNum':Number,
+    'checked':Number
 });
 module.exports = mongoose.model('Good',productSchema); //这就是模型的整个流程=》 这种写法 程会寻找goods表，所以数据库命名要加s
 //模型就是我们创建文档的类
