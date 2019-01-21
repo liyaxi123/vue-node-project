@@ -117,10 +117,10 @@
         </div>
         <div class="cart-foot-r">
           <div class="item-total">
-            总计 <span class="total-price"></span>
+            总计 <span class="total-price">{{totalPrice | currency('$')}}</span>
           </div>
           <div class="btn-wrap">
-            <a class="btn btn--red">提交</a>
+            <a class="btn btn--red" :class="{'btn--dis':cartCheckedCount===0}" @click="submit()">提交</a>
           </div>
         </div>
       </div>
@@ -147,34 +147,59 @@ import '@/assets/css/checkout.css';
 import '@/assets/css/login.css';
 import '@/assets/css/product.css';
 import axios from 'axios';
+import {currency} from './../util/currency.js';
 export default{
   data(){
     return{
       items:[],
       cartModelFlag: false,  //控制模态框
       productId:0,
-      checkall:true
     }
   },
-  watch:{
-    items:function(){
-      console.log('检测到了吗？')
-        this.items.forEach((item)=>{
-          if(item.checked===0){
-            this.checkall=false
-          }
-        })
+  filters:{
+    currency: currency
+  },
+  computed:{
+    checkall:{   //购物车与checked数量一致时，全选为true
+      get(){
+         return this.cartCheckedCount===this.items.length; 
+      }
+    },
+    cartCheckedCount(){ //已选商品个数
+      let i=0;
+      this.items.forEach((item)=>{
+        if(item.checked===1){
+          i++
+        }
+      })
+      return i;
+    },
+    totalPrice(){ //总价的计算属性。
+      var total=0;
+      this.items.forEach((item)=>{
+        if(item.checked===1){
+          total+=item.salePrice*item.productNum
+        }
+      });
+      return total
     }
   },
   methods:{
+    submit(){
+      if(this.cartCheckedCount===0){
+        return;
+      }else{
+        this.$router.push({path:'/addressList'});
+      }     
+    },
     //全选
     cartSeletAll(){
-      this.checkall=!this.checkall;
+       var flag=!this.checkall;
       this.items.forEach((item)=>{
-        item.checked=this.checkall===true?1:0;
+        item.checked=flag===true?1:0;
       })
       axios.post('/users/checkedall',{
-        checkedAll: this.checkall
+        checkedAll: flag
       }).then((res)=>{
         if(res.data.status==='0'){
           console.log('全选check已经更新')

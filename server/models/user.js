@@ -4,7 +4,13 @@ var UserSchema = new Schema({
     'userId':{type:Number},
     'userName': String,
     'userPwd' : Number,
-    'orderList':Array,
+    'orderList':[{
+        orderId:String,
+        orderTotal:String,
+        addressInfo:String,
+        goodsList:Array,
+        createDate:String,
+    }],
     'cartList': [{
         'productId':Number,
         'productName':String,
@@ -13,6 +19,15 @@ var UserSchema = new Schema({
         'productImage':String,
         'productNum':Number
 }],
-    'addressList': Array
+    'addressList':[
+        {
+            'addressId':Number,
+            'userName':String,
+            'streetName':String,
+            'postCode':Number,
+            'tel':Number,
+            'isDefault':Boolean
+        }
+    ]
 });
 module.exports = mongoose.model('User',UserSchema,'user');
