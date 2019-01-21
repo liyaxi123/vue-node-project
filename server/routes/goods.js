@@ -5,7 +5,7 @@ var Goods = require('../models/goods');
 var User = require("../models/user");
 
 //连接Mongodb数据库
-mongoose.connect('mongodb://admin:123456@192.168.6.128:27017/demoone')
+mongoose.connect('mongodb://admin:admin@192.168.252.128:27017/demoone')
 
 mongoose.connection.on('connected',function(){
     console.log('已经成功连接！')

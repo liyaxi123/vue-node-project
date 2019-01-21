@@ -92,7 +92,7 @@
             </div>
             <div class="cart-tab-5">
               <div class="cart-item-opration">
-                <a href="javascript:;" class="item-edit-btn" @click="del(item.productId)">
+                <a href="javascript:;" class="item-edit-btn" @click="del(item)">
                   <svg class="icon icon-del">
                     <use xlink:href="#icon-del"></use>
                   </svg>
@@ -215,32 +215,33 @@ export default{
         }
         item.productNum-=1;  //item不存在于data数据中为什么还可以自动更新呢？!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          this.cartNum(item.productId,item.productNum);
-         this.$store.state.cartCount--
+         this.$store.commit('updataCount',-1)
       }else if(ags ==='add'){
         item.productNum+=1;
         this.cartNum(item.productId,item.productNum);
-        this.$store.state.cartCount++;
+        this.$store.commit('updataCount',1)
       }else if(ags==='select'){
         //数据库中checked为1 是选中，为0是未选中,改变数据库中的状态
           if(check===1){
             item.checked =0;
             this.cartNum(item.productId,item.productNum,item.checked);
-            this.$store.state.cartCount-=item.productNum;
+            this.$store.commit('updataCount',-item.productNum);
           }else{
             item.checked =1;
             this.cartNum(item.productId,item.productNum,item.checked);
-                this.$store.state.cartCount+=item.productNum;
+                this.$store.commit('updataCount',item.productNum);
           }
       }
     },
     //点击删除按钮后，模态框的删除按钮事件,需要后端配合删除数据
     delCart(){
         axios.post('/users/cartdel',{
-       productId:this.productId
+       productId:this.productId.productId
      }).then((res)=>{
        if(res.data.status==='0'){
          this.cartModelFlag=false;
          this.getCartList();
+            this.$store.commit('updataCount',-this.productId.productNum)
        }
      })
     },
@@ -252,7 +253,7 @@ export default{
         checked:checked
       }).then((res)=>{
         if(res.data.status==='0'){
-          console.log('后端数量已经更改')
+          console.log('后端数量已经更改');
         }else{
           console.log('错误！')
         }

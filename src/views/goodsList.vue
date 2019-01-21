@@ -157,7 +157,7 @@ components: {
          console.log(res.data.status)
          if(res.data.status=="0"){
            this.goshopsucceful =true;
-           this.$store.state.cartCount++
+           this.$store.commit('updataCount',1);
          }else{
           if(res.data.status==='2'){
             this.goshopModel=true;

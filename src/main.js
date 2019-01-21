@@ -14,6 +14,9 @@ const store = new vuex.Store({
   },
   mutations:{
     updataCount(state,n){
+      state.cartCount+=n;
+    },
+    initCart(state,n){
       state.cartCount=n;
     }
   }

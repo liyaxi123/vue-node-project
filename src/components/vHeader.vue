@@ -78,7 +78,7 @@ data(){
      .then((res)=>{    //兄弟请使用es箭头函数
        if(res.data.status==='0'){
          this.loginflag=true;
-         this.$store.state.cartCount=0;
+         this.$store.commit('initCart','');
        }
      })
    },
@@ -122,7 +122,7 @@ data(){
               response.result.forEach((item)=>{
                   num+=item.productNum
               })
-              this.$store.commit('updataCount',num)
+              this.$store.commit('initCart',num)
             }
           })
         },
@@ -137,6 +137,7 @@ data(){
           if(res.data.status==='0'){
             this.loginflag=false,
             this.username=res.data.result  //通过v-text来给元素内容添加值
+            this.cart();
           }
         })
         }
