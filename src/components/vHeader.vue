@@ -9,21 +9,22 @@
         </symbol>
           <div class="navbar">
           <div class="navbar-left-container">
-            <a href="/">
-              <img class="navbar-brand-logo" src="static/logo.png"></a>
+            <a href="/" class="logs">
+              小米商城</a>
           </div>
           <div class="navbar-right-container" style="display: flex;">
             <div class="navbar-menu-container">
               <!--<a href="/" class="navbar-link">我的账户</a>-->
               <span class="navbar-link" v-text="username" v-show='!loginflag'></span>
-              <a href="javascript:void(0)" class="navbar-link" v-show="loginflag" @click="login_in()">Login</a>
-              <a href="javascript:void(0)" class="navbar-link" v-show="!loginflag" @click="login_out()">Logout</a>
+              <a href="javascript:void(0)" class="navbar-link" v-show="loginflag" @click="login_in()">登陆</a>
+              <a href="javascript:void(0)" class="navbar-link" v-show="!loginflag" @click="login_out()">退出</a>
               <div class="navbar-cart-container">
                 <span class="navbar-cart-count"></span>
-                <a class="navbar-link navbar-cart-link" href="/#/cart">
+                <a class="navbar-link navbar-cart-link" href="/#/goodsList">
                   <svg class="navbar-cart-logo">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
                   </svg>
+                   <span class="cartNmber">{{cartNum}}</span>
                 </a>
               </div>
             </div>
@@ -77,6 +78,7 @@ data(){
      .then((res)=>{    //兄弟请使用es箭头函数
        if(res.data.status==='0'){
          this.loginflag=true;
+         this.$store.state.cartCount=0;
        }
      })
    },
@@ -98,6 +100,7 @@ data(){
                      this.tipsflag=false;  
                      this.username=response.result.username;
                      this.loginflag=false;
+                     this.cart();
                  }else{
                      this.tipsflag=true;
                  }
@@ -105,24 +108,48 @@ data(){
         },
         childss(){
          this.$refs.model.modelshowflag=false;
+        },
+        //vuex来设计购物车图标数量的实时更新
+        cart(){
+          axios.get('/goods/cartsNum',{
+            params:{
+              userId:this.userId
+            }
+          }).then((res)=>{
+            let response = res.data;
+            if(response.status==='0'){
+              let num=0;
+              response.result.forEach((item)=>{
+                  num+=item.productNum
+              })
+              this.$store.commit('updataCount',num)
+            }
+          })
+        },
+      },
+        computed:{
+          cartNum(){
+            return this.$store.state.cartCount
+          }
+        },
+        mounted(){
+        axios.get('/users/checkout').then((res)=>{
+          if(res.data.status==='0'){
+            this.loginflag=false,
+            this.username=res.data.result  //通过v-text来给元素内容添加值
+          }
+        })
         }
-},
-mounted(){
-  axios.get('/users/checkout').then((res)=>{
-    if(res.data.status==='0'){
-      this.loginflag=false,
-      this.username=res.data.result  //通过v-text来给元素内容添加值
-    }
-  })
-}
-}
-</script>
-<style scoped>
-.common{ margin: 20px 0 10px -50px}
-.common input { height:25px;width:200px;}
-.title { text-align: center; margin-top:20px; font-weight: 300; font-size:30px;}
-.btn_login { background: tomato;padding: 10px 20px;}
-.back{ position: absolute; right:5px;top:3px; cursor: pointer; font-size: 20px; display:block;width: 20px; height:20px;line-height:15px;}
-.back:hover{ border:1px solid goldenrod; border-radius: 50%; background: goldenrod}
-.tips{color:red}
-</style>
+      }
+        </script> 
+        <style scoped>
+        .logs{ font-size: 20px;color:yellowgreen;}
+        .common{ margin: 20px 0 10px -50px}
+        .common input { height:25px;width:200px;}
+        .title { text-align: center; margin-top:20px; font-weight: 300; font-size:30px;}
+        .btn_login { background: tomato;padding: 10px 20px;}
+        .back{ position: absolute; right:5px;top:3px; cursor: pointer; font-size: 20px; display:block;width: 20px; height:20px;line-height:15px;}
+        .back:hover{ border:1px solid goldenrod; border-radius: 50%; background: goldenrod}
+        .tips{color:red}
+        .cartNmber{ position: relative; top:-18px;left:-4px; color: red;}
+        </style>

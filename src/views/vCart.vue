@@ -215,17 +215,21 @@ export default{
         }
         item.productNum-=1;  //item不存在于data数据中为什么还可以自动更新呢？!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          this.cartNum(item.productId,item.productNum);
+         this.$store.state.cartCount--
       }else if(ags ==='add'){
         item.productNum+=1;
         this.cartNum(item.productId,item.productNum);
+        this.$store.state.cartCount++;
       }else if(ags==='select'){
-        //数据库中checked为0 是选中，为1是未选中,改变数据库中的状态
+        //数据库中checked为1 是选中，为0是未选中,改变数据库中的状态
           if(check===1){
             item.checked =0;
             this.cartNum(item.productId,item.productNum,item.checked);
+            this.$store.state.cartCount-=item.productNum;
           }else{
             item.checked =1;
             this.cartNum(item.productId,item.productNum,item.checked);
+                this.$store.state.cartCount+=item.productNum;
           }
       }
     },

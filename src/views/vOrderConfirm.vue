@@ -169,13 +169,14 @@ import '@/assets/css/product.css';
          },
          payMent(){
              var addressId = this.$route.params.addressId;
+             console.log('this.totalPrice'+this.totalPrice)
             axios.post('/users/payMent',{
                 totalPrice:this.totalPrice,
                 addressId:addressId
             }).then((res)=>{
                 if(res.data.status==='0'){
-                    console.log('你已经成功了')
-                    this.$router.push('/payMent?orderId'+res.data.result.orderId)
+                    console.log('发送orderId已经成功')
+                    this.$router.push('/payMent?orderId='+res.data.result.orderId)
                 }else{
                     console.log("出错了")
                 }

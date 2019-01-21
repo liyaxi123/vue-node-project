@@ -5,16 +5,16 @@
       <div class="accessory-result-page accessory-page">
         <div class="container">
           <div class="filter-nav">
-            <span class="sortby">Sort by:</span>
-            <a href="javascript:void(0)" class="price"  @click="paixu">Price<span :class="{'rows':checked,'inrows':!checked}">↑</span></a>
+            <span class="sortby">排序:</span>
+            <a href="javascript:void(0)" class="price"  @click="paixu">价格<span :class="{'rows':checked,'inrows':!checked}">↑</span></a>
             <a href="javascript:void(0)" class="filterby stopPop">Filter by</a>
           </div>
           <div class="accessory-result">
             <!-- filter -->
             <div class="filter stopPop" id="filter">
               <dl class="filter-price">
-                <dt>Price:</dt>
-                <dd><a href="javascript:void(0)" @click="setFilerPrice('all')">All</a></dd>
+                <dt>价格:</dt>
+                <dd><a href="javascript:void(0)" @click="setFilerPrice('all')">全部</a></dd>
                 <dd>
                   <a href="javascript:void(0)" @click="setFilerPrice(0)">0 - 100</a>
                 </dd>
@@ -157,6 +157,7 @@ components: {
          console.log(res.data.status)
          if(res.data.status=="0"){
            this.goshopsucceful =true;
+           this.$store.state.cartCount++
          }else{
           if(res.data.status==='2'){
             this.goshopModel=true;

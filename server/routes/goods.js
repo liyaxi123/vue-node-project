@@ -5,7 +5,7 @@ var Goods = require('../models/goods');
 var User = require("../models/user");
 
 //连接Mongodb数据库
-mongoose.connect('mongodb://admin:admin@192.168.252.128:27017/demoone')
+mongoose.connect('mongodb://admin:123456@192.168.6.128:27017/demoone')
 
 mongoose.connection.on('connected',function(){
     console.log('已经成功连接！')
@@ -151,6 +151,26 @@ router.get('/List',function(req,res,next){
                     status: '0',
                     msg: '获取购物车列表成功',
                     result: doc.cartList
+                })
+            }
+        }
+    })
+});
+//使用vuex来控制购物车数量， 该接口查询购物车数量
+router.get('/cartsNum',function(req,res,next){
+    var userId =req.cookies.userId||req.param('userId');
+    User.findOne({userId:userId},function(err,doc){
+        if(err){
+            res.json({
+                status:'1',
+                msg:err.message,
+            })
+        }else{
+            if(doc){
+                res.json({
+                    status:'0',
+                    msg:'here is the data that you wanted',
+                    result:doc.cartList
                 })
             }
         }

@@ -224,7 +224,8 @@ router.post('/addressDelete',function(req,res,next){
 });
 //有订单页面跳转至支付页面的接口
 router.post('/payMent',function(req,res,next){
-  var addressId = req.body.addressId, userId=req.cookies.userId,totolPrice=req.body.totolPrice;
+  var addressId = req.body.addressId, userId=req.cookies.userId,totolPrice=req.body.totalPrice;
+  console.log('totalPrice------------'+totolPrice);
  User.findOne({userId:userId},function(err,doc){
   if(err){
     res.json({
@@ -253,11 +254,12 @@ router.post('/payMent',function(req,res,next){
       var orderId = platform+r1+sys+r2;
       //定义订单对象
       var order ={
-        orderId:order,
+        orderId:orderId,
         orderTotal:totolPrice,
         addressInfo:address,
         orderStatus:'1',
-        createDate:createDate
+        createDate:createDate,
+        goodsList:cart
       };
       doc.orderList.push(order);
       doc.save(function(err,doc){
@@ -279,11 +281,6 @@ router.post('/payMent',function(req,res,next){
           }
         }
       })
-      res.json({
-        status:'0',
-        msg: '你已经成功的进入支付页面了',
-        result:''
-      })
     }else{
       res.json({
         status:'1',
@@ -293,5 +290,31 @@ router.post('/payMent',function(req,res,next){
     }
   }
  })
+});
+//订单成功页的加载
+router.get('/orderInfo',function(req,res,next){
+  var orderId=req.param('orderId'),userId = req.cookies.userId;
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1',
+        msg: err.message,
+      })
+    }else{
+      if(doc){
+        var totalPrice='';
+      doc.orderList.forEach((item)=>{
+        if(item.orderId===orderId){
+          totalPrice=item.orderTotal;
+        }
+      });
+      res.json({
+        status:'0',
+        msg:'恭喜您已经下单成功了！',
+        result: totalPrice
+      })
+      }
+    }
+  })
 })
 module.exports = router;

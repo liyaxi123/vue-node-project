@@ -5,6 +5,7 @@ import vCart from '@/views/vCart.vue';
 import { model } from 'mongoose';
 import vAddress from './../views/vAddress.vue';
 import vOrderConfirm from  './../views/vOrderConfirm.vue';
+import vOrderSuccessful from './../views/vOrderSuccessful.vue';
 Vue.use(Router)
 export default new Router({
   routes: [
@@ -27,7 +28,12 @@ export default new Router({
       path:'/orderConfirm/:addressId',
       name:'orderConfirm',
       component:vOrderConfirm
-    }
+    },
+    {
+      path:'/payMent',
+      name:'orderSuccessful',
+      component:vOrderSuccessful
+    },
   ]
      
 })
